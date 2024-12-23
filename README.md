@@ -1,3 +1,3 @@
 # HTML Element Generator
 This project makes coding in HTML easier, as it generates html elements for you.
-![image](https://github.com/user-attachments/assets/dafbc6d4-4948-40e1-9748-3ce542da1f41)
+![image](https://github.com/user-attachments/assets/5f7c2926-4767-4bb6-91ed-ea576fd76878)
