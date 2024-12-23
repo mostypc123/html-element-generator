@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Generator</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .preview {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .attributes-container {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .attribute-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .remove-btn {
+            background: #dc3545;
+        }
+        .copy-btn {
+            position: relative;
+        }
+        .copy-btn::after {
+            content: "Copied!";
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .copy-btn.copied::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <h2>HTML Element Generator</h2>
+            <div class="form-group">
+                <label for="elementType">Element Type</label>
+                <select id="elementType" onchange="updateForm()">
+                    <option value="div">div</option>
+                    <option value="p">p</option>
+                    <option value="span">span</option>
+                    <option value="button">button</option>
+                    <option value="input">input</option>
+                    <option value="a">a</option>
+                    <option value="img">img</option>
+                    <option value="h1">h1</option>
+                    <option value="h2">h2</option>
+                    <option value="h3">h3</option>
+                    <option value="ul">ul</option>
+                    <option value="ol">ol</option>
+                    <option value="li">li</option>
+                    <option value="form">form</option>
+                    <option value="label">label</option>
+                    <option value="textarea">textarea</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="content">Content</label>
+                <textarea id="content" rows="3" oninput="generateHTML()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Attributes</label>
+                <div id="attributes" class="attributes-container">
+                    <div class="attribute-row">
+                        <input type="text" placeholder="Attribute name" oninput="generateHTML()">
+                        <input type="text" placeholder="Value" oninput="generateHTML()">
+                        <button class="remove-btn" onclick="removeAttribute(this)">×</button>
+                    </div>
+                </div>
+                <button onclick="addAttribute()">Add Attribute</button>
+            </div>
+        </div>
+
+        <div class="output-container">
+            <h2>Generated Code</h2>
+            <div class="output" id="output"></div>
+            <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+            <h3>Preview</h3>
+            <div class="preview" id="preview"></div>
+        </div>
+    </div>
+
+    <script>
+        function generateHTML() {
+            const elementType = document.getElementById('elementType').value;
+            const content = document.getElementById('content').value;
+            const attributes = [];
+            
+            document.querySelectorAll('.attribute-row').forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                if (inputs[0].value) {
+                    attributes.push(`${inputs[0].value}="${inputs[1].value}"`);
+                }
+            });
+
+            const attributeString = attributes.length ? ' ' + attributes.join(' ') : '';
+            let html;
+
+            if (elementType === 'img') {
+                html = `<img${attributeString}>`;
+            } else if (elementType === 'input') {
+                html = `<input${attributeString}>`;
+            } else {
+                html = `<${elementType}${attributeString}>${content}</${elementType}>`;
+            }
+
+            document.getElementById('output').textContent = html;
+            document.getElementById('preview').innerHTML = html;
+        }
+
+        function updateForm() {
+            const elementType = document.getElementById('elementType').value;
+            const contentArea = document.getElementById('content');
+            
+            if (elementType === 'img' || elementType === 'input') {
+                contentArea.disabled = true;
+                contentArea.value = '';
+            } else {
+                contentArea.disabled = false;
+            }
+            
+            generateHTML();
+        }
+
+        function addAttribute() {
+            const container = document.getElementById('attributes');
+            const row = document.createElement('div');
+            row.className = 'attribute-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Attribute name" oninput="generateHTML()">
+                <input type="text" placeholder="Value" oninput="generateHTML()">
+                <button class="remove-btn" onclick="removeAttribute(this)">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeAttribute(button) {
+            button.parentElement.remove();
+            generateHTML();
+        }
+
+        function copyCode() {
+            const code = document.getElementById('output').textContent;
+            navigator.clipboard.writeText(code);
+            
+            const btn = document.querySelector('.copy-btn');
+            btn.classList.add('copied');
+            setTimeout(() => btn.classList.remove('copied'), 1000);
+        }
+
+        // Initialize
+        generateHTML();
+    </script>
+</body>
+</html>
